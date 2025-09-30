@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Gyro Veri Gönderici</title>
+</head>
+<body style="font-family: sans-serif; text-align: center; margin-top: 50px;">
+    <h2>Jiroskop Verisi Gönderiliyor...</h2>
+    <p id="status">WebSocket bağlanıyor...</p>
+
+    <script>
+        const ws = new WebSocket("ws://192.168.148.143:9001"); // IP adresini UGV arayüzünü çalıştıran PC'nin IP adresi ile değiştir
+
+        ws.onopen = () => {
+            document.getElementById("status").textContent = "WebSocket bağlı. Veriler gönderiliyor...";
+            console.log("WebSocket bağlantısı kuruldu.");
+        };
+
+        ws.onerror = (error) => {
+            document.getElementById("status").textContent = "WebSocket hatası.";
+            console.error("WebSocket hatası:", error);
+        };
+
+        ws.onclose = () => {
+            document.getElementById("status").textContent = "WebSocket bağlantısı kapandı.";
+        };
+
+        window.addEventListener("deviceorientation", (event) => {
+            const data = {
+                alpha: event.alpha || 0, // Z ekseni dönüş
+                beta: event.beta || 0,   // X ekseni eğim
+                gamma: event.gamma || 0  // Y ekseni eğim
+            };
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(data));
+            }
+        }, true);
+    </script>
+</body>
+</html>
+
